@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ZhuangxiufenggeDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.zhuangxiufengge_name as zhuangxiufenggeName
+        ,a.zhuangxiufengge_uuid_number as zhuangxiufenggeUuidNumber
+        ,a.zhuangxiufengge_photo as zhuangxiufenggePhoto
+        ,a.zhuangxiufengge_types as zhuangxiufenggeTypes
+        ,a.huxing_types as huxingTypes
+        ,a.zhuangxiufengge_kucun_number as zhuangxiufenggeKucunNumber
+        ,a.zhuangxiufengge_clicknum as zhuangxiufenggeClicknum
+        ,a.zhuangxiufengge_content as zhuangxiufenggeContent
+        ,a.shangxia_types as shangxiaTypes
+        ,a.zhuangxiufengge_delete as zhuangxiufenggeDelete
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ZhuangxiufenggeView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM zhuangxiufengge  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.zhuangxiufenggeName != '' and params.zhuangxiufenggeName != null and params.zhuangxiufenggeName != 'null' ">
+                and a.zhuangxiufengge_name like CONCAT('%',#{params.zhuangxiufenggeName},'%')
+            </if>
+            <if test=" params.zhuangxiufenggeUuidNumber != '' and params.zhuangxiufenggeUuidNumber != null and params.zhuangxiufenggeUuidNumber != 'null' ">
+                and a.zhuangxiufengge_uuid_number like CONCAT('%',#{params.zhuangxiufenggeUuidNumber},'%')
+            </if>
+            <if test="params.zhuangxiufenggeTypes != null and params.zhuangxiufenggeTypes != ''">
+                and a.zhuangxiufengge_types = #{params.zhuangxiufenggeTypes}
+            </if>
+            <if test="params.huxingTypes != null and params.huxingTypes != ''">
+                and a.huxing_types = #{params.huxingTypes}
+            </if>
+            <if test="params.zhuangxiufenggeKucunNumberStart != null and params.zhuangxiufenggeKucunNumberStart != ''">
+                <![CDATA[  and a.zhuangxiufengge_kucun_number >= #{params.zhuangxiufenggeKucunNumberStart}   ]]>
+            </if>
+            <if test="params.zhuangxiufenggeKucunNumberEnd != null and params.zhuangxiufenggeKucunNumberEnd != ''">
+                <![CDATA[  and a.zhuangxiufengge_kucun_number <= #{params.zhuangxiufenggeKucunNumberEnd}   ]]>
+            </if>
+             <if test="params.zhuangxiufenggeKucunNumber != null and params.zhuangxiufenggeKucunNumber != ''">
+                and a.zhuangxiufengge_kucun_number = #{params.zhuangxiufenggeKucunNumber}
+             </if>
+            <if test="params.zhuangxiufenggeClicknumStart != null and params.zhuangxiufenggeClicknumStart != ''">
+                <![CDATA[  and a.zhuangxiufengge_clicknum >= #{params.zhuangxiufenggeClicknumStart}   ]]>
+            </if>
+            <if test="params.zhuangxiufenggeClicknumEnd != null and params.zhuangxiufenggeClicknumEnd != ''">
+                <![CDATA[  and a.zhuangxiufengge_clicknum <= #{params.zhuangxiufenggeClicknumEnd}   ]]>
+            </if>
+             <if test="params.zhuangxiufenggeClicknum != null and params.zhuangxiufenggeClicknum != ''">
+                and a.zhuangxiufengge_clicknum = #{params.zhuangxiufenggeClicknum}
+             </if>
+            <if test=" params.zhuangxiufenggeContent != '' and params.zhuangxiufenggeContent != null and params.zhuangxiufenggeContent != 'null' ">
+                and a.zhuangxiufengge_content like CONCAT('%',#{params.zhuangxiufenggeContent},'%')
+            </if>
+            <if test="params.shangxiaTypes != null and params.shangxiaTypes != ''">
+                and a.shangxia_types = #{params.shangxiaTypes}
+            </if>
+            <if test="params.zhuangxiufenggeDeleteStart != null and params.zhuangxiufenggeDeleteStart != ''">
+                <![CDATA[  and a.zhuangxiufengge_delete >= #{params.zhuangxiufenggeDeleteStart}   ]]>
+            </if>
+            <if test="params.zhuangxiufenggeDeleteEnd != null and params.zhuangxiufenggeDeleteEnd != ''">
+                <![CDATA[  and a.zhuangxiufengge_delete <= #{params.zhuangxiufenggeDeleteEnd}   ]]>
+            </if>
+             <if test="params.zhuangxiufenggeDelete != null and params.zhuangxiufenggeDelete != ''">
+                and a.zhuangxiufengge_delete = #{params.zhuangxiufenggeDelete}
+             </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

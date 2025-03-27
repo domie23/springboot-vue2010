@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ZhucaiLiuyanDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.zhucai_id as zhucaiId
+        ,a.yonghu_id as yonghuId
+        ,a.zhucai_liuyan_text as zhucaiLiuyanText
+        ,a.insert_time as insertTime
+        ,a.reply_text as replyText
+        ,a.update_time as updateTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ZhucaiLiuyanView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.fangyuan_types as fangyuanTypes
+        ,yonghu.huxing_types as huxingTypes
+        ,yonghu.yonghu_email as yonghuEmail
+        ,zhucai.zhucai_name as zhucaiName
+        ,zhucai.zhucai_uuid_number as zhucaiUuidNumber
+        ,zhucai.zhucai_photo as zhucaiPhoto
+        ,zhucai.zhucai_danwei as zhucaiDanwei
+        ,zhucai.zhucai_shengchanchangjia as zhucaiShengchanchangjia
+        ,zhucai.zhucai_types as zhucaiTypes
+        ,zhucai.pinpai_types as pinpaiTypes
+        ,zhucai.zhucai_jiage as zhucaiJiage
+        ,zhucai.zhucai_clicknum as zhucaiClicknum
+        ,zhucai.zhucai_content as zhucaiContent
+        ,zhucai.shangxia_types as shangxiaTypes
+        ,zhucai.zhucai_delete as zhucaiDelete
+
+        FROM zhucai_liuyan  a
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+        left JOIN zhucai zhucai ON a.zhucai_id = zhucai.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.zhucaiId != null and params.zhucaiId != ''">
+                and (
+                    a.zhucai_id = #{params.zhucaiId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test=" params.zhucaiLiuyanText != '' and params.zhucaiLiuyanText != null and params.zhucaiLiuyanText != 'null' ">
+                and a.zhucai_liuyan_text like CONCAT('%',#{params.zhucaiLiuyanText},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test=" params.replyText != '' and params.replyText != null and params.replyText != 'null' ">
+                and a.reply_text like CONCAT('%',#{params.replyText},'%')
+            </if>
+            <if test=" params.updateTimeStart != '' and params.updateTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.update_time) >= UNIX_TIMESTAMP(#{params.updateTimeStart}) ]]>
+            </if>
+            <if test=" params.updateTimeEnd != '' and params.updateTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.update_time) <= UNIX_TIMESTAMP(#{params.updateTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test="params.fangyuanTypes != null  and params.fangyuanTypes != ''">
+                and yonghu.fangyuan_types = #{params.fangyuanTypes}
+            </if>
+
+            <if test="params.huxingTypes != null  and params.huxingTypes != ''">
+                and yonghu.huxing_types = #{params.huxingTypes}
+            </if>
+
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+                <!-- 判断主材的id不为空 -->
+            <if test=" params.zhucaiIdNotNull != '' and params.zhucaiIdNotNull != null and params.zhucaiIdNotNull != 'null' ">
+                and a.zhucai_id IS NOT NULL
+            </if>
+            <if test=" params.zhucaiName != '' and params.zhucaiName != null and params.zhucaiName != 'null' ">
+                and zhucai.zhucai_name like CONCAT('%',#{params.zhucaiName},'%')
+            </if>
+            <if test=" params.zhucaiUuidNumber != '' and params.zhucaiUuidNumber != null and params.zhucaiUuidNumber != 'null' ">
+                and zhucai.zhucai_uuid_number like CONCAT('%',#{params.zhucaiUuidNumber},'%')
+            </if>
+            <if test=" params.zhucaiDanwei != '' and params.zhucaiDanwei != null and params.zhucaiDanwei != 'null' ">
+                and zhucai.zhucai_danwei like CONCAT('%',#{params.zhucaiDanwei},'%')
+            </if>
+            <if test=" params.zhucaiShengchanchangjia != '' and params.zhucaiShengchanchangjia != null and params.zhucaiShengchanchangjia != 'null' ">
+                and zhucai.zhucai_shengchanchangjia like CONCAT('%',#{params.zhucaiShengchanchangjia},'%')
+            </if>
+            <if test="params.zhucaiTypes != null  and params.zhucaiTypes != ''">
+                and zhucai.zhucai_types = #{params.zhucaiTypes}
+            </if>
+
+            <if test="params.pinpaiTypes != null  and params.pinpaiTypes != ''">
+                and zhucai.pinpai_types = #{params.pinpaiTypes}
+            </if>
+
+            <if test="params.zhucaiJiageStart != null ">
+                <![CDATA[  and zhucai.zhucai_jiage >= #{params.zhucaiJiageStart}   ]]>
+            </if>
+            <if test="params.zhucaiJiageEnd != null ">
+                <![CDATA[  and zhucai.zhucai_jiage <= #{params.zhucaiJiageEnd}   ]]>
+            </if>
+            <if test="params.zhucaiClicknumStart != null  and params.zhucaiClicknumStart != '' ">
+                <![CDATA[  and zhucai.zhucai_clicknum >= #{params.zhucaiClicknumStart}   ]]>
+            </if>
+            <if test="params.zhucaiClicknumEnd != null  and params.zhucaiClicknumEnd != '' ">
+                <![CDATA[  and zhucai.zhucai_clicknum <= #{params.zhucaiClicknumEnd}   ]]>
+            </if>
+            <if test="params.zhucaiClicknum != null  and params.zhucaiClicknum != '' ">
+                and zhucai.zhucai_clicknum = #{params.zhucaiClicknum}
+            </if>
+            <if test=" params.zhucaiContent != '' and params.zhucaiContent != null and params.zhucaiContent != 'null' ">
+                and zhucai.zhucai_content like CONCAT('%',#{params.zhucaiContent},'%')
+            </if>
+            <if test="params.shangxiaTypes != null  and params.shangxiaTypes != ''">
+                and zhucai.shangxia_types = #{params.shangxiaTypes}
+            </if>
+
+            <if test="params.zhucaiDeleteStart != null  and params.zhucaiDeleteStart != '' ">
+                <![CDATA[  and zhucai.zhucai_delete >= #{params.zhucaiDeleteStart}   ]]>
+            </if>
+            <if test="params.zhucaiDeleteEnd != null  and params.zhucaiDeleteEnd != '' ">
+                <![CDATA[  and zhucai.zhucai_delete <= #{params.zhucaiDeleteEnd}   ]]>
+            </if>
+            <if test="params.zhucaiDelete != null  and params.zhucaiDelete != '' ">
+                and zhucai.zhucai_delete = #{params.zhucaiDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zhucai.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zhucai.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

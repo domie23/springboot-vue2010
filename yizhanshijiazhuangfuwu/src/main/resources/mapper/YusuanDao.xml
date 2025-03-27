@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.YusuanDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yonghu_id as yonghuId
+        ,a.zhuangxiufengge_id as zhuangxiufenggeId
+        ,a.yusuan_name as yusuanName
+        ,a.yusuan_uuid_number as yusuanUuidNumber
+        ,a.yusuan_types as yusuanTypes
+        ,a.yusuan_huafei as yusuanHuafei
+        ,a.yusuan_content as yusuanContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.YusuanView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.fangyuan_types as fangyuanTypes
+        ,yonghu.huxing_types as huxingTypes
+        ,yonghu.yonghu_email as yonghuEmail
+        ,zhuangxiufengge.zhuangxiufengge_name as zhuangxiufenggeName
+        ,zhuangxiufengge.zhuangxiufengge_uuid_number as zhuangxiufenggeUuidNumber
+        ,zhuangxiufengge.zhuangxiufengge_photo as zhuangxiufenggePhoto
+        ,zhuangxiufengge.zhuangxiufengge_types as zhuangxiufenggeTypes
+        ,zhuangxiufengge.huxing_types as huxingTypes
+        ,zhuangxiufengge.zhuangxiufengge_kucun_number as zhuangxiufenggeKucunNumber
+        ,zhuangxiufengge.zhuangxiufengge_clicknum as zhuangxiufenggeClicknum
+        ,zhuangxiufengge.zhuangxiufengge_content as zhuangxiufenggeContent
+        ,zhuangxiufengge.shangxia_types as shangxiaTypes
+        ,zhuangxiufengge.zhuangxiufengge_delete as zhuangxiufenggeDelete
+
+        FROM yusuan  a
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+        left JOIN zhuangxiufengge zhuangxiufengge ON a.zhuangxiufengge_id = zhuangxiufengge.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.zhuangxiufenggeId != null and params.zhuangxiufenggeId != ''">
+                and (
+                    a.zhuangxiufengge_id = #{params.zhuangxiufenggeId}
+                )
+            </if>
+            <if test=" params.yusuanName != '' and params.yusuanName != null and params.yusuanName != 'null' ">
+                and a.yusuan_name like CONCAT('%',#{params.yusuanName},'%')
+            </if>
+            <if test=" params.yusuanUuidNumber != '' and params.yusuanUuidNumber != null and params.yusuanUuidNumber != 'null' ">
+                and a.yusuan_uuid_number like CONCAT('%',#{params.yusuanUuidNumber},'%')
+            </if>
+            <if test="params.yusuanTypes != null and params.yusuanTypes != ''">
+                and a.yusuan_types = #{params.yusuanTypes}
+            </if>
+            <if test="params.yusuanHuafeiStart != null ">
+                <![CDATA[  and a.yusuan_huafei >= #{params.yusuanHuafeiStart}   ]]>
+            </if>
+            <if test="params.yusuanHuafeiEnd != null ">
+                <![CDATA[  and a.yusuan_huafei <= #{params.yusuanHuafeiEnd}   ]]>
+            </if>
+            <if test=" params.yusuanContent != '' and params.yusuanContent != null and params.yusuanContent != 'null' ">
+                and a.yusuan_content like CONCAT('%',#{params.yusuanContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test="params.fangyuanTypes != null  and params.fangyuanTypes != ''">
+                and yonghu.fangyuan_types = #{params.fangyuanTypes}
+            </if>
+
+            <if test="params.huxingTypes != null  and params.huxingTypes != ''">
+                and yonghu.huxing_types = #{params.huxingTypes}
+            </if>
+
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+                <!-- 判断装修风格的id不为空 -->
+            <if test=" params.zhuangxiufenggeIdNotNull != '' and params.zhuangxiufenggeIdNotNull != null and params.zhuangxiufenggeIdNotNull != 'null' ">
+                and a.zhuangxiufengge_id IS NOT NULL
+            </if>
+            <if test=" params.zhuangxiufenggeName != '' and params.zhuangxiufenggeName != null and params.zhuangxiufenggeName != 'null' ">
+                and zhuangxiufengge.zhuangxiufengge_name like CONCAT('%',#{params.zhuangxiufenggeName},'%')
+            </if>
+            <if test=" params.zhuangxiufenggeUuidNumber != '' and params.zhuangxiufenggeUuidNumber != null and params.zhuangxiufenggeUuidNumber != 'null' ">
+                and zhuangxiufengge.zhuangxiufengge_uuid_number like CONCAT('%',#{params.zhuangxiufenggeUuidNumber},'%')
+            </if>
+            <if test="params.zhuangxiufenggeTypes != null  and params.zhuangxiufenggeTypes != ''">
+                and zhuangxiufengge.zhuangxiufengge_types = #{params.zhuangxiufenggeTypes}
+            </if>
+
+            <if test="params.huxingTypes != null  and params.huxingTypes != ''">
+                and zhuangxiufengge.huxing_types = #{params.huxingTypes}
+            </if>
+
+            <if test="params.zhuangxiufenggeKucunNumberStart != null  and params.zhuangxiufenggeKucunNumberStart != '' ">
+                <![CDATA[  and zhuangxiufengge.zhuangxiufengge_kucun_number >= #{params.zhuangxiufenggeKucunNumberStart}   ]]>
+            </if>
+            <if test="params.zhuangxiufenggeKucunNumberEnd != null  and params.zhuangxiufenggeKucunNumberEnd != '' ">
+                <![CDATA[  and zhuangxiufengge.zhuangxiufengge_kucun_number <= #{params.zhuangxiufenggeKucunNumberEnd}   ]]>
+            </if>
+            <if test="params.zhuangxiufenggeKucunNumber != null  and params.zhuangxiufenggeKucunNumber != '' ">
+                and zhuangxiufengge.zhuangxiufengge_kucun_number = #{params.zhuangxiufenggeKucunNumber}
+            </if>
+            <if test="params.zhuangxiufenggeClicknumStart != null  and params.zhuangxiufenggeClicknumStart != '' ">
+                <![CDATA[  and zhuangxiufengge.zhuangxiufengge_clicknum >= #{params.zhuangxiufenggeClicknumStart}   ]]>
+            </if>
+            <if test="params.zhuangxiufenggeClicknumEnd != null  and params.zhuangxiufenggeClicknumEnd != '' ">
+                <![CDATA[  and zhuangxiufengge.zhuangxiufengge_clicknum <= #{params.zhuangxiufenggeClicknumEnd}   ]]>
+            </if>
+            <if test="params.zhuangxiufenggeClicknum != null  and params.zhuangxiufenggeClicknum != '' ">
+                and zhuangxiufengge.zhuangxiufengge_clicknum = #{params.zhuangxiufenggeClicknum}
+            </if>
+            <if test=" params.zhuangxiufenggeContent != '' and params.zhuangxiufenggeContent != null and params.zhuangxiufenggeContent != 'null' ">
+                and zhuangxiufengge.zhuangxiufengge_content like CONCAT('%',#{params.zhuangxiufenggeContent},'%')
+            </if>
+            <if test="params.shangxiaTypes != null  and params.shangxiaTypes != ''">
+                and zhuangxiufengge.shangxia_types = #{params.shangxiaTypes}
+            </if>
+
+            <if test="params.zhuangxiufenggeDeleteStart != null  and params.zhuangxiufenggeDeleteStart != '' ">
+                <![CDATA[  and zhuangxiufengge.zhuangxiufengge_delete >= #{params.zhuangxiufenggeDeleteStart}   ]]>
+            </if>
+            <if test="params.zhuangxiufenggeDeleteEnd != null  and params.zhuangxiufenggeDeleteEnd != '' ">
+                <![CDATA[  and zhuangxiufengge.zhuangxiufengge_delete <= #{params.zhuangxiufenggeDeleteEnd}   ]]>
+            </if>
+            <if test="params.zhuangxiufenggeDelete != null  and params.zhuangxiufenggeDelete != '' ">
+                and zhuangxiufengge.zhuangxiufengge_delete = #{params.zhuangxiufenggeDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zhuangxiufengge.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zhuangxiufengge.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

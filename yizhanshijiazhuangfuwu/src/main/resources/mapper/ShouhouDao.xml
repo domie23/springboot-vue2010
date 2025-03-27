@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ShouhouDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yonghu_id as yonghuId
+        ,a.hetong_id as hetongId
+        ,a.shouhou_name as shouhouName
+        ,a.shouhou_uuid_number as shouhouUuidNumber
+        ,a.shouhou_file as shouhouFile
+        ,a.shouhou_types as shouhouTypes
+        ,a.fuwu_time as fuwuTime
+        ,a.shouhou_content as shouhouContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ShouhouView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,hetong.yonghu_id as hetongYonghuId
+        ,hetong.hetong_uuid_number as hetongUuidNumber
+        ,hetong.hetong_name as hetongName
+        ,hetong.hetong_file as hetongFile
+        ,hetong.hetong_types as hetongTypes
+        ,hetong.hetong_huafei as hetongHuafei
+        ,hetong.hetong_weiyuejin as hetongWeiyuejin
+        ,hetong.hetong_content as hetongContent
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.fangyuan_types as fangyuanTypes
+        ,yonghu.huxing_types as huxingTypes
+        ,yonghu.yonghu_email as yonghuEmail
+
+        FROM shouhou  a
+        left JOIN hetong hetong ON a.hetong_id = hetong.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                    or hetong.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.hetongId != null and params.hetongId != ''">
+                and (
+                    a.hetong_id = #{params.hetongId}
+                )
+            </if>
+            <if test=" params.shouhouName != '' and params.shouhouName != null and params.shouhouName != 'null' ">
+                and a.shouhou_name like CONCAT('%',#{params.shouhouName},'%')
+            </if>
+            <if test=" params.shouhouUuidNumber != '' and params.shouhouUuidNumber != null and params.shouhouUuidNumber != 'null' ">
+                and a.shouhou_uuid_number like CONCAT('%',#{params.shouhouUuidNumber},'%')
+            </if>
+            <if test="params.shouhouTypes != null and params.shouhouTypes != ''">
+                and a.shouhou_types = #{params.shouhouTypes}
+            </if>
+            <if test=" params.fuwuTimeStart != '' and params.fuwuTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.fuwu_time) >= UNIX_TIMESTAMP(#{params.fuwuTimeStart}) ]]>
+            </if>
+            <if test=" params.fuwuTimeEnd != '' and params.fuwuTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.fuwu_time) <= UNIX_TIMESTAMP(#{params.fuwuTimeEnd}) ]]>
+            </if>
+            <if test=" params.shouhouContent != '' and params.shouhouContent != null and params.shouhouContent != 'null' ">
+                and a.shouhou_content like CONCAT('%',#{params.shouhouContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断合同的id不为空 -->
+            <if test=" params.hetongIdNotNull != '' and params.hetongIdNotNull != null and params.hetongIdNotNull != 'null' ">
+                and a.hetong_id IS NOT NULL
+            </if>
+            <if test=" params.hetongUuidNumber != '' and params.hetongUuidNumber != null and params.hetongUuidNumber != 'null' ">
+                and hetong.hetong_uuid_number like CONCAT('%',#{params.hetongUuidNumber},'%')
+            </if>
+            <if test=" params.hetongName != '' and params.hetongName != null and params.hetongName != 'null' ">
+                and hetong.hetong_name like CONCAT('%',#{params.hetongName},'%')
+            </if>
+            <if test="params.hetongTypes != null  and params.hetongTypes != ''">
+                and hetong.hetong_types = #{params.hetongTypes}
+            </if>
+
+            <if test="params.hetongHuafeiStart != null ">
+                <![CDATA[  and hetong.hetong_huafei >= #{params.hetongHuafeiStart}   ]]>
+            </if>
+            <if test="params.hetongHuafeiEnd != null ">
+                <![CDATA[  and hetong.hetong_huafei <= #{params.hetongHuafeiEnd}   ]]>
+            </if>
+            <if test="params.hetongWeiyuejinStart != null ">
+                <![CDATA[  and hetong.hetong_weiyuejin >= #{params.hetongWeiyuejinStart}   ]]>
+            </if>
+            <if test="params.hetongWeiyuejinEnd != null ">
+                <![CDATA[  and hetong.hetong_weiyuejin <= #{params.hetongWeiyuejinEnd}   ]]>
+            </if>
+            <if test=" params.hetongContent != '' and params.hetongContent != null and params.hetongContent != 'null' ">
+                and hetong.hetong_content like CONCAT('%',#{params.hetongContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(hetong.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(hetong.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test="params.fangyuanTypes != null  and params.fangyuanTypes != ''">
+                and yonghu.fangyuan_types = #{params.fangyuanTypes}
+            </if>
+
+            <if test="params.huxingTypes != null  and params.huxingTypes != ''">
+                and yonghu.huxing_types = #{params.huxingTypes}
+            </if>
+
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
